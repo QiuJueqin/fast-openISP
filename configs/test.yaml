@@ -52,7 +52,7 @@ cfa: ~
 
 ccm:
   ccm:
-    - [ 1024, 0, 0, 0 ]          # x1024, copied from dcraw.c
+    - [ 1024, 0, 0, 0 ]               # x1024, copied from dcraw.c
     - [ 0, 1024, 0, 0 ]
     - [ 0, 0, 1024, 0 ]
 
