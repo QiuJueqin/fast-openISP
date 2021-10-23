@@ -1,4 +1,4 @@
-import cv2
+import skimage.io
 import numpy as np
 
 from isp_pipeline import Pipeline
@@ -20,7 +20,7 @@ def main():
     data, _ = pipeline.execute(bayer)
 
     rgb_path = test_raw_path.replace('.RAW', '.png')
-    cv2.imwrite(rgb_path, data['output'][..., ::-1])
+    skimage.io.imsave(rgb_path, data['output'])
 
 
 if __name__ == '__main__':

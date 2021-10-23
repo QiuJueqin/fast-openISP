@@ -9,10 +9,10 @@ import copy
 import importlib
 from collections import OrderedDict
 
-import cv2
 import numpy as np
 
 from utils.yacs import Config
+from utils.image_helpers import ycbcr_to_rgb
 
 
 class Pipeline:
@@ -109,10 +109,8 @@ class Pipeline:
         """
 
         if 'y_image' in data and 'cbcr_image' in data:
-            ycrcb_image = np.dstack([
-                data['y_image'][..., None], data['cbcr_image'][..., ::-1]
-            ])
-            rgb_output = cv2.cvtColor(ycrcb_image, code=cv2.COLOR_YCrCb2RGB)
+            ycbcr_image = np.dstack([data['y_image'][..., None], data['cbcr_image']])
+            rgb_output = ycbcr_to_rgb(ycbcr_image)
         elif 'rgb_image' in data:
             rgb_output = data['rgb_image']
             if rgb_output.dtype != np.uint8:
