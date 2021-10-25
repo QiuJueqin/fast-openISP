@@ -94,33 +94,33 @@ class Pipeline:
             if verbose:
                 print('Done. Elapsed {:.3f}s'.format(time.time() - start))
 
-        data['output'] = self.get_rgb_output(data)
+        data['output'] = self.get_output(data)
 
         if verbose:
             print('Pipeline elapsed {:.3f}s'.format(time.time() - pipeline_start))
 
         return data, intermediates
 
-    def get_rgb_output(self, data):
+    def get_output(self, data):
         """
-        Post-process the pipeline result to get the final RGB output
+        Post-process the pipeline result to get the final output
         :param data: argument returned by self.execute()
         :return: displayable result: np.ndarray(H, W, 3) in np.uint8 dtype
         """
 
         if 'y_image' in data and 'cbcr_image' in data:
             ycbcr_image = np.dstack([data['y_image'][..., None], data['cbcr_image']])
-            rgb_output = ycbcr_to_rgb(ycbcr_image)
+            output = ycbcr_to_rgb(ycbcr_image)
         elif 'rgb_image' in data:
-            rgb_output = data['rgb_image']
-            if rgb_output.dtype != np.uint8:
-                rgb_output = rgb_output.astype(np.float32)
-                rgb_output = (255 * rgb_output / self.cfg.saturation_values.hdr).astype(np.uint8)
+            output = data['rgb_image']
+            if output.dtype != np.uint8:
+                output = output.astype(np.float32)
+                output = (255 * output / self.cfg.saturation_values.hdr).astype(np.uint8)
         elif 'bayer' in data:
-            rgb_output = data['bayer']  # actually not an RGB image, looks very dark for most cameras
-            rgb_output = rgb_output.astype(np.float32)
-            rgb_output = (255 * rgb_output / self.cfg.saturation_values.raw).astype(np.uint8)
+            output = data['bayer']  # actually not an RGB image, looks very dark for most cameras
+            output = output.astype(np.float32)
+            output = (255 * output / self.cfg.saturation_values.raw).astype(np.uint8)
         else:
             raise NotImplementedError
 
-        return rgb_output
+        return output
