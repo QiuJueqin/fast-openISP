@@ -7,7 +7,7 @@
 import numpy as np
 
 from .basic_module import BasicModule, register_dependent_modules
-from utils.image_helpers import pad, shift_array
+from utils.image_helpers import bilateral_filter, gen_gaussian_kernel
 
 
 @register_dependent_modules('csc')
@@ -15,28 +15,18 @@ class BNF(BasicModule):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        dw = np.array(self.params.dw, dtype=np.int32)
-        self.window_height, self.window_width = dw.shape
-        self.dw = dw.flatten()
-        self.rw = np.array(self.params.rw, dtype=np.int32)
+        self.intensity_weights_lut = self.get_intensity_weights_lut(self.params.intensity_sigma)  # x1024
+        spatial_weights = gen_gaussian_kernel(kernel_size=5, sigma=self.params.spatial_sigma)
+        self.spatial_weights = (1024 * spatial_weights / spatial_weights.max()).astype(np.int32)  # x1024
 
     def execute(self, data):
         y_image = data['y_image'].astype(np.int32)
 
-        padded_y_image = pad(y_image, pads=(self.window_height // 2, self.window_width // 2))
-        shifted_arrays = shift_array(padded_y_image, window_size=(self.window_height, self.window_width))
+        bf_y_image = bilateral_filter(y_image, self.spatial_weights, self.intensity_weights_lut, right_shift=10)
+        data['y_image'] = bf_y_image.astype(np.uint8)
 
-        bnf_y_image = weights = 0
-        for i, shifted_y_image in enumerate(shifted_arrays):
-            diff = np.abs(shifted_y_image - y_image)
-            cur_weights = self.dw[i] * (
-                    (diff >= self.params.diff_thres[0]) * self.rw[0] +
-                    (diff < self.params.diff_thres[0]) * (diff >= self.params.diff_thres[1]) * self.rw[1] +
-                    (diff < self.params.diff_thres[1]) * (diff >= self.params.diff_thres[2]) * self.rw[2] +
-                    (diff < self.params.diff_thres[2]) * self.rw[3]
-            )
-            bnf_y_image += cur_weights * shifted_y_image
-            weights += cur_weights
-
-        bnf_y_image = bnf_y_image / weights
-        data['y_image'] = bnf_y_image.astype(np.uint8)
+    @staticmethod
+    def get_intensity_weights_lut(intensity_sigma):
+        intensity_diff = np.arange(255 ** 2)
+        exp_lut = 1024 * np.exp(-intensity_diff / (2.0 * (255 * intensity_sigma) ** 2))
+        return exp_lut.astype(np.int32)  # x1024

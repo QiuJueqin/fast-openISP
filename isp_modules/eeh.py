@@ -7,7 +7,7 @@
 import numpy as np
 
 from .basic_module import BasicModule, register_dependent_modules
-from utils.image_helpers import pad, shift_array
+from utils.image_helpers import bilateral_filter, gen_gaussian_kernel
 
 
 @register_dependent_modules('csc')
@@ -15,53 +15,44 @@ class EEH(BasicModule):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        gaussian = np.array([[1, 4, 7, 4, 1],
-                             [4, 16, 26, 16, 4],
-                             [7, 26, 41, 26, 7],
-                             [4, 16, 26, 16, 4],
-                             [1, 4, 7, 4, 1]])
-        self.kernel_height, self.kernel_width = gaussian.shape
-        self.gaussian = [int(1024 * x / gaussian.sum()) for x in gaussian.flatten()]  # x1024
+        self.intensity_weights_lut = self.get_intensity_weights_lut(intensity_sigma=1.0)  # x1024
+        spatial_weights = gen_gaussian_kernel(kernel_size=5, sigma=1.0)
+        self.spatial_weights = (1024 * spatial_weights / spatial_weights.max()).astype(np.int32)  # x1024
 
-        flat_slope = self.params.middle_thres / (self.params.middle_thres - self.params.flat_thres)
+        flat_slope = self.params.middle_threshold / (self.params.middle_threshold - self.params.flat_threshold + 1E-6)
         edge_slope = self.params.edge_gain / 256
 
-        self.x1 = 1024 * self.params.flat_thres  # flat threshold, x1024
-        self.x2 = 1024 * self.params.middle_thres  # middle threshold, x1024
-        self.x3 = 1024 * self.params.edge_thres  # edge threshold, x1024
-        self.a1 = np.array(256 * flat_slope, dtype=np.int32)  # flat slope, x256
-        self.a3 = np.array(256 * edge_slope, dtype=np.int32)  # edge slope, x256
-        self.b1 = np.array(-flat_slope * self.x1, dtype=np.int32)  # flat_intercept, x1024
-        self.b3 = np.array((1 - edge_slope) * self.x3, dtype=np.int32)  # edge_intercept, x1024
-        self.delta_lower = -1024 * self.params.delta_thres  # enhanced delta upper limit, x1024
-        self.delta_upper = 1024 * self.params.delta_thres  # enhanced delta lower limit, x1024
+        self.flat_slope = np.array(256 * flat_slope, dtype=np.int32)  # x256
+        self.edge_slope = np.array(256 * edge_slope, dtype=np.int32)  # x256
+        self.flat_intercept = np.array(-flat_slope * self.params.flat_threshold, dtype=np.int32)
+        self.edge_intercept = np.array((1 - edge_slope) * self.params.edge_threshold, dtype=np.int32)
 
     def execute(self, data):
         y_image = data['y_image'].astype(np.int32)
 
-        padded_y_image = pad(y_image, pads=(self.kernel_height // 2, self.kernel_width // 2))
-        shifted_arrays = shift_array(padded_y_image, window_size=(self.kernel_height, self.kernel_width))
+        bf_y_image = bilateral_filter(y_image, self.spatial_weights, self.intensity_weights_lut, right_shift=10)
 
-        gauss = 0
-        for i, shifted_array in enumerate(shifted_arrays):
-            gauss += self.gaussian[i] * shifted_array  # faster gaussian convolution
-
-        delta = np.left_shift(y_image, 10) - gauss  # x1024
-
+        delta = y_image - bf_y_image
         sign_map = np.sign(delta)
         abs_delta = np.abs(delta)
 
-        flat_delta = np.right_shift(self.a1 * abs_delta, 8) + self.b1  # x1024
-        edge_delta = np.right_shift(self.a3 * abs_delta, 8) + self.b3  # x1024
+        flat_delta = np.right_shift(self.flat_slope * abs_delta, 8) + self.flat_intercept
+        edge_delta = np.right_shift(self.edge_slope * abs_delta, 8) + self.edge_intercept
         enhanced_delta = sign_map * (
-                (abs_delta > self.x1) * (abs_delta <= self.x2) * flat_delta +
-                (abs_delta > self.x2) * (abs_delta <= self.x3) * abs_delta +
-                (abs_delta > self.x3) * edge_delta
-        )  # x1024
-        enhanced_delta = np.clip(enhanced_delta, self.delta_lower, self.delta_upper)  # x1024
+                (abs_delta > self.params.flat_threshold) * (abs_delta <= self.params.middle_threshold) * flat_delta +
+                (abs_delta > self.params.middle_threshold) * (abs_delta <= self.params.edge_threshold) * abs_delta +
+                (abs_delta > self.params.edge_threshold) * edge_delta
+        )
+        enhanced_delta = np.clip(enhanced_delta, -self.params.delta_threshold, self.params.delta_threshold)
 
-        eeh_y_image = np.right_shift(gauss + enhanced_delta, 10)
-        eeh_y_image = np.clip(eeh_y_image, 0, self.cfg.saturation_values.sdr)
+        eeh_y_image = np.clip(bf_y_image + enhanced_delta, 0, self.cfg.saturation_values.sdr)
 
         data['y_image'] = eeh_y_image.astype(np.uint8)
-        data['edge_map'] = np.right_shift(delta, 10)
+        data['edge_map'] = delta
+
+    @staticmethod
+    def get_intensity_weights_lut(intensity_sigma):
+        intensity_diff = np.arange(255 ** 2)
+        exp_lut = 1024 * np.exp(-intensity_diff / (2.0 * (255 * intensity_sigma) ** 2))
+        return exp_lut.astype(np.int32)  # x1024
+

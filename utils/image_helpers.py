@@ -103,6 +103,27 @@ def shift_array(padded_array, window_size):
             yield padded_array[y0:y0 + height, x0:x0 + width, ...]
 
 
+def gen_gaussian_kernel(kernel_size, sigma):
+    if isinstance(kernel_size, (list, tuple)):
+        assert len(kernel_size) == 2
+        wy, wx = kernel_size
+    else:
+        wy = wx = kernel_size
+
+    x = np.arange(wx) - wx // 2
+    if wx % 2 == 0:
+        x += 0.5
+
+    y = np.arange(wy) - wy // 2
+    if wy % 2 == 0:
+        y += 0.5
+
+    y, x = np.meshgrid(y, x)
+
+    kernel = np.exp(-(x ** 2 + y ** 2) / (2 * sigma ** 2))
+    return kernel / kernel.sum()
+
+
 def mean_filter(array, filter_size=3):
     """
     A faster reimplementation of the mean-filter
@@ -116,6 +137,40 @@ def mean_filter(array, filter_size=3):
     padded_array = pad(array, pads=filter_size // 2)
     shifted_arrays = shift_array(padded_array, window_size=filter_size)
     return (sum(shifted_arrays) / filter_size ** 2).astype(array.dtype)
+
+
+def bilateral_filter(array, spatial_weights, intensity_weights_lut, right_shift=0):
+    """
+    A faster reimplementation of the bilateral-filter
+    :param array: array to be filter: np.ndarray(H, W, ...), must be np.int dtype
+    :param spatial_weights: np.ndarray(h, w): predefined spatial gaussian kernel, where h and w are
+        kernel height and width respectively
+    :param intensity_weights_lut: a predefined exponential LUT that maps intensity distance to the weight
+    :param right_shift: shift the multiplication result of the spatial- and intensity weights to the
+        right to avoid integer overflow when multiply this result to the input array
+    :return: filtered array: np.ndarray(H, W, ...)
+    """
+
+    filter_height, filter_width = spatial_weights.shape[:2]
+    spatial_weights = spatial_weights.flatten()
+
+    padded_array = pad(array, pads=(filter_height // 2, filter_width // 2))
+    shifted_arrays = shift_array(padded_array, window_size=(filter_height, filter_width))
+
+    bf_array = np.empty_like(array)
+    weights = np.empty_like(array)
+
+    for i, shifted_array in enumerate(shifted_arrays):
+        intensity_diff = (shifted_array - array) ** 2
+        weight = intensity_weights_lut[intensity_diff] * spatial_weights[i]
+        weight = np.right_shift(weight, right_shift)  # to avoid overflow
+
+        bf_array += weight * shifted_array
+        weights += weight
+
+    bf_array = (bf_array / weights).astype(array.dtype)
+
+    return bf_array
 
 
 def ycbcr_to_rgb(ycbcr_array):
