@@ -4,20 +4,20 @@
 # Author: Qiu Jueqin (qiujueqin@gmail.com)
 
 
-def register_dependent_modules(dependent_module_names):
+def register_dependent_modules(dependent_module):
     """ A decorator to register dependent ISP modules """
 
-    if not isinstance(dependent_module_names, (list, tuple)):
-        dependent_module_names = [dependent_module_names]
+    if not isinstance(dependent_module, (list, tuple)):
+        dependent_module = [dependent_module]
 
     def _register_dependent_modules(cls):
         orig_init = cls.__init__
 
-        def __init__(self, *args, **kws):
+        def override_init(self, *args, **kws):
             orig_init(self, *args, **kws)
-            self.register_dependent_modules = tuple(dependent_module_names)
+            self.dependent_modules = tuple(dependent_module)
 
-        cls.__init__ = __init__
+        cls.__init__ = override_init
         return cls
 
     return _register_dependent_modules

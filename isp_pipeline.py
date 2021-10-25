@@ -32,7 +32,7 @@ class Pipeline:
             module = module_cls(self.cfg)
 
             if hasattr(module, 'dependent_modules'):
-                for m in module.register_dependent_modules:
+                for m in module.dependent_modules:
                     if m not in enabled_modules:
                         raise RuntimeError('{} is available only if {} is activated'.format(module_name, m))
 
@@ -44,7 +44,7 @@ class Pipeline:
         Raw stage: dataflow before the BLC modules (not included)
         HDR stage: dataflow after the BLC modules (included) and before the bit-depth compression
             module, i.e., Gamma in openISP (not included)
-        SDR stage: dataflow after the Gamma modules (included)
+        SDR stage: dataflow after the Gamma module (included)
         """
 
         raw_max_value = 2 ** self.cfg.hardware.raw_bit_depth - 1
