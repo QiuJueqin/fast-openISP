@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import skimage.io
 
-from isp_pipeline import Pipeline
+from pipeline import Pipeline
 from utils.yacs import Config
 
 

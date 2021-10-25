@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from .basic_module import BasicModule, register_dependent_modules
+from modules.basic_module import BasicModule, register_dependent_modules
 from utils.image_helpers import pad, shift_array, mean_filter
 
 

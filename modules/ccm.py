@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from .basic_module import BasicModule
+from modules.basic_module import BasicModule
 
 
 class CCM(BasicModule):

@@ -1,4 +1,4 @@
-# File: isp_pipeline.py
+# File: pipeline.py
 # Description: Main pipeline of fast-openISP
 # Created: 2021/10/22 20:34
 # Author: Qiu Jueqin (qiujueqin@gmail.com)
@@ -27,7 +27,7 @@ class Pipeline:
 
         self.modules = OrderedDict()
         for module_name in enabled_modules:
-            package = importlib.import_module('isp_modules.{}'.format(module_name))
+            package = importlib.import_module('modules.{}'.format(module_name))
             module_cls = getattr(package, module_name.upper())
             module = module_cls(self.cfg)
 
