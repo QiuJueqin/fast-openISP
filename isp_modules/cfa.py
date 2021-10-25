@@ -60,6 +60,63 @@ class CFA(BasicModule):
         return result
 
     def execute(self, data):
+        if self.params.mode.lower() == 'bilinear':
+            self.execute_bilinear(data)
+        elif self.params.mode.lower() == 'malvar':
+            self.execute_malvar(data)
+        else:
+            raise NotImplementedError
+
+    def execute_bilinear(self, data):
+        bayer = data['bayer'].astype(np.int32)
+        bayer = self.rotate_to_rggb(bayer)  # RGGB pattern
+
+        r, gr, gb, b = split_bayer(bayer, bayer_pattern='rggb')
+        height, width = r.shape
+
+        # R-channel
+        padded_r = pad(r, pads=(0, 1, 0, 1))
+        r_right = padded_r[:height, 1:1 + width]
+        r_bottom = padded_r[1:1 + height, :width]
+        r_br = padded_r[1:1 + height, 1:1 + width]
+
+        r_on_gr = np.right_shift(r + r_right, 1)
+        r_on_gb = np.right_shift(r + r_bottom, 1)
+        r_on_b = np.right_shift(r + r_right + r_bottom + r_br, 2)
+
+        # G-channel
+        padded_gr = pad(gr, pads=(0, 1, 1, 0))
+        padded_gb = pad(gb, pads=(1, 0, 0, 1))
+        gr_left = padded_gr[:height, :width]
+        gr_bottom = padded_gr[1:1 + height, 1:1 + width]
+        gb_top = padded_gb[:height, :width]
+        gb_right = padded_gb[1:1 + height, 1:1 + width]
+
+        g_on_r = np.right_shift(gr_left + gr + gb_top + gb, 2)
+        g_on_b = np.right_shift(gr + gr_bottom + gb+ gb_right, 2)
+
+        # B-channel
+        padded_b = pad(b, pads=(1, 0, 1, 0))
+        b_top = padded_b[:height, 1:1 + width]
+        b_left = padded_b[1:1 + height, :width]
+        b_tl = padded_b[:height, :width]
+
+        b_on_r = np.right_shift(b_tl + b_top + b_left + b, 2)
+        b_on_gr = np.right_shift(b_top + b, 1)
+        b_on_gb = np.right_shift(b_left + b, 1)
+
+        # ---------------- Reconstruction ----------------
+        rgb_image = np.dstack([
+            reconstruct_bayer((r, r_on_gr, r_on_gb, r_on_b), bayer_pattern='rggb'),
+            reconstruct_bayer((g_on_r, gr, gb, g_on_b), bayer_pattern='rggb'),
+            reconstruct_bayer((b_on_r, b_on_gr, b_on_gb, b), bayer_pattern='rggb')
+        ])
+        rgb_image = self.rotate_from_rggb(rgb_image)
+        rgb_image = np.clip(rgb_image, 0, self.cfg.saturation_values.hdr)
+
+        data['rgb_image'] = rgb_image.astype(np.uint16)
+
+    def execute_malvar(self, data):
         bayer = data['bayer'].astype(np.int32)
         bayer = self.rotate_to_rggb(bayer)  # RGGB pattern
 
