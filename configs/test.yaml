@@ -25,7 +25,7 @@ hardware:
 # -------------------- Module Algorithms Parameters --------------------
 
 dpc:
-  diff_thres: 30
+  diff_threshold: 30
 
 blc:
   bl_r: 0                             # a subtractive value, not additive!
@@ -44,46 +44,41 @@ awb:
   b_gain: &b_gain 1280                # x1024
 
 cnf:
-  thres: 0
+  diff_threshold: 0
   r_gain: *r_gain                     # x1024
   b_gain: *b_gain                     # x1024
 
-cfa: ~
+cfa:
+  mode: malvar
 
 ccm:
   ccm:
-    - [ 1024, 0, 0, 0 ]               # x1024, copied from dcraw.c
+    - [ 1024, 0, 0, 0 ]
     - [ 0, 1024, 0, 0 ]
     - [ 0, 0, 1024, 0 ]
 
 gac:
   gain: 256                           # x256
-  gamma: 0.5
+  gamma: 0.42
 
 csc: ~
 
 nlm:
   search_window_size: 9
   patch_size: 3
-  h: 15
+  h: 10                               # larger value has stronger smoothing effect
 
 bnf:
-  rw: [ 0, 8, 16, 32 ]
-  diff_thres: [ 128, 32, 8 ]
-  dw:
-    - [ 8, 12, 32, 12, 8 ]
-    - [ 12, 64, 128, 64, 12 ]
-    - [ 32, 128, 1024, 128, 32 ]
-    - [ 12, 64, 128, 64, 12 ]
-    - [ 8, 12, 32, 12, 8 ]
+  intensity_sigma: 0.8                # larger value has stronger smoothing effect
+  spatial_sigma: 0.8                  # larger value has stronger smoothing effect
 
 eeh:
-  flat_thres: 0                       # delta <= flat_thres: set delta to 0
-  middle_thres: 4                     # flat_thres < delta <= middle_thres: reduce delta
-  edge_thres: 16                      # middle_thres < delta <= edge_thres: keep delta unchanged
+  flat_threshold: 0                   # delta <= flat_thres: set delta to 0
+  middle_threshold: 4                 # flat_thres < delta <= middle_thres: reduce delta
+  edge_threshold: 16                  # middle_thres < delta <= edge_thres: keep delta unchanged
                                       # edge_thres < delta: increase delta
   edge_gain: 1024                     # x256
-  delta_thres: 64
+  delta_threshold: 64
 
 fcs:
   delta_min: 8
@@ -92,7 +87,7 @@ fcs:
   edge_gain: 0                        # x256
 
 hsc:
-  hue_degree: 0                       # in degree
+  hue_offset: 0                       # in degree
   saturation_gain: 256                # x256
 
 bcc:

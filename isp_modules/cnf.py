@@ -17,14 +17,14 @@ class CNF(BasicModule):
         avg_g = np.right_shift(mean_filter(gr, filter_size=5) + mean_filter(gb, filter_size=5), 1)
         avg_b = mean_filter(b, filter_size=5)
 
-        is_r_noise = (r - avg_g > self.params.thres) * \
-                     (r - avg_b > self.params.thres) * \
-                     (avg_r - avg_g > self.params.thres) * \
-                     (avg_r - avg_b < self.params.thres)
-        is_b_noise = (b - avg_g > self.params.thres) * \
-                     (b - avg_r > self.params.thres) * \
-                     (avg_b - avg_g > self.params.thres) * \
-                     (avg_b - avg_r < self.params.thres)
+        is_r_noise = (r - avg_g > self.params.diff_threshold) * \
+                     (r - avg_b > self.params.diff_threshold) * \
+                     (avg_r - avg_g > self.params.diff_threshold) * \
+                     (avg_r - avg_b < self.params.diff_threshold)
+        is_b_noise = (b - avg_g > self.params.diff_threshold) * \
+                     (b - avg_r > self.params.diff_threshold) * \
+                     (avg_b - avg_g > self.params.diff_threshold) * \
+                     (avg_b - avg_r < self.params.diff_threshold)
 
         return avg_r, avg_g, avg_b, is_r_noise, is_b_noise
 

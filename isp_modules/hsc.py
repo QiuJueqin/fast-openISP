@@ -14,9 +14,9 @@ class HSC(BasicModule):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        hue_rad = np.pi * self.params.hue_degree / 180
-        self.sin_hue = (256 * np.sin(hue_rad)).astype(np.int32)  # x256
-        self.cos_hue = (256 * np.cos(hue_rad)).astype(np.int32)  # x256
+        hue_offset = np.pi * self.params.hue_offset / 180
+        self.sin_hue = (256 * np.sin(hue_offset)).astype(np.int32)  # x256
+        self.cos_hue = (256 * np.cos(hue_offset)).astype(np.int32)  # x256
         self.saturation_gain = np.array(self.params.saturation_gain, dtype=np.int32)  # x256
 
     def execute(self, data):

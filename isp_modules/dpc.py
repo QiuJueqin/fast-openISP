@@ -21,14 +21,14 @@ class DPC(BasicModule):
         for padded_array in padded_sub_arrays:
             shifted_arrays = tuple(shift_array(padded_array, window_size=3))   # generator --> tuple
 
-            mask = (np.abs(shifted_arrays[4] - shifted_arrays[1]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[7]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[3]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[5]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[0]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[2]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[6]) > self.params.diff_thres) * \
-                   (np.abs(shifted_arrays[4] - shifted_arrays[8]) > self.params.diff_thres)
+            mask = (np.abs(shifted_arrays[4] - shifted_arrays[1]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[7]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[3]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[5]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[0]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[2]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[6]) > self.params.diff_threshold) * \
+                   (np.abs(shifted_arrays[4] - shifted_arrays[8]) > self.params.diff_threshold)
 
             dv = np.abs(2 * shifted_arrays[4] - shifted_arrays[1] - shifted_arrays[7])
             dh = np.abs(2 * shifted_arrays[4] - shifted_arrays[3] - shifted_arrays[5])
