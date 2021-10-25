@@ -1,0 +1,95 @@
+module_enable_status:
+  dpc: True
+  blc: True
+  aaf: True
+  awb: True
+  cnf: True
+  cfa: True
+  ccm: True
+  gac: True
+  csc: True
+  nlm: False
+  bnf: True
+  eeh: True
+  fcs: True
+  hsc: True
+  bcc: True
+
+hardware:
+  raw_width: 6080
+  raw_height: 4044
+  raw_bit_depth: 14
+  bayer_pattern: rggb
+
+
+# -------------------- Module Algorithms Parameters --------------------
+
+dpc:
+  diff_threshold: 30
+
+blc:
+  bl_r: 0                             # a subtractive value, not additive!
+  bl_gr: 0
+  bl_gb: 0
+  bl_b: 0
+  alpha: 0                            # x1024
+  beta: 0                             # x1024
+
+aaf: ~
+
+awb:
+  r_gain: &r_gain 2688                # x1024
+  gr_gain: 1024                       # x1024
+  gb_gain: 1024                       # x1024
+  b_gain: &b_gain 1294                # x1024
+
+cnf:
+  diff_threshold: 0
+  r_gain: *r_gain                     # x1024
+  b_gain: *b_gain                     # x1024
+
+cfa:
+  mode: malvar
+
+ccm:
+  ccm:
+    - [ 1896, -811, -62, 0 ]          # x1024, copied from dcraw.c
+    - [ -160, 1687, -503, 0 ]
+    - [ 18, -557, 1563, 0 ]
+
+gac:
+  gain: 256                           # x256
+  gamma: 0.42
+
+csc: ~
+
+nlm:
+  search_window_size: 9
+  patch_size: 3
+  h: 10                               # larger value has stronger smoothing effect
+
+bnf:
+  intensity_sigma: 0.8                # larger value has stronger smoothing effect
+  spatial_sigma: 0.8                  # larger value has stronger smoothing effect
+
+eeh:
+  flat_threshold: 0                   # delta <= flat_thres: set delta to 0
+  middle_threshold: 4                 # flat_thres < delta <= middle_thres: reduce delta
+  edge_threshold: 16                  # middle_thres < delta <= edge_thres: keep delta unchanged
+                                      # edge_thres < delta: increase delta
+  edge_gain: 1024                     # x256
+  delta_threshold: 64
+
+fcs:
+  delta_min: 8
+  delta_max: 16
+  flat_gain: 256                      # x256
+  edge_gain: 0                        # x256
+
+hsc:
+  hue_offset: 0                       # in degree
+  saturation_gain: 256                # x256
+
+bcc:
+  brightness_offset: 0
+  contrast_gain: 256                  # x256
