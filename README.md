@@ -2,14 +2,28 @@
 
 As told by its name, fast-openISP is a **faster** re-implementation of the [openISP](https://github.com/cruxopen/openISP) project.
 
-Compared to C-style code in the official openISP repo, fast-openISP uses pure matrix implementations based on Numpy, and increases processing speed over xxx.
+Compared to C-style code in the official openISP repo, fast-openISP uses pure matrix implementations based on Numpy, and increases processing speed **over 300 times**.
 
-Here is the running time in my Ryzen 7 1700 8-core 3.00GHz machine:
+Here is the running time in my Ryzen 7 1700 8-core 3.00GHz machine with the 1920x1080 input Bayer array:
 
-|Camera   |File                                      |Raw Resolution|openISP Pipeline Time|fast-openISP Pipeline Time|
-|:-------:|:----------------------------------------:|:------------:|:-------------------:|:------------------------:|
-|unknown  |[test.RAW](raw/test.RAW)                  |1920 x 1080   |todo                 |todo                      |
-|Nikon D3x|[color_checker.pgm](raw/color_checker.pgm)|6080 x 4044   |todo                 |todo                      |
+|Module             |openISP |fast-openISP|
+|:-----------------:|:------:|:----------:|
+|DPC                |20.57s  |0.30s       |
+|BLC                |11.75s  |0.02s       |
+|AAF                |16.87s  |0.08s       |
+|AWB                |7.54s   |0.02s       |
+|CNF                |73.99s  |0.26s       |
+|CFA                |40.71s  |0.21s       |
+|CCM                |56.85s  |0.07s       |
+|GAC                |25.71s  |0.07s       |
+|CSC                |60.32s  |0.06s       |
+|NLM                |1600.95s|5.52s       |
+|BNF                |801.24s |0.77s       |
+|EEH                |68.60s  |0.83s       |
+|FCS                |25.07s  |0.08s       |
+|HSC                |56.34s  |0.07s       |
+|BBC                |27.92s  |0.03s       |
+|End-to-end pipeline|2894.41s|8.48s       |
 
 
 # Algorithms
