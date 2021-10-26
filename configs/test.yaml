@@ -14,6 +14,7 @@ module_enable_status:
   fcs: True
   hsc: True
   bcc: True
+  scl: False
 
 hardware:
   raw_width: 1920
@@ -93,3 +94,7 @@ hsc:
 bcc:
   brightness_offset: 0
   contrast_gain: 256                  # x256
+
+scl:
+  width: 1920
+  height: 1080
