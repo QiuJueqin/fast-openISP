@@ -6,8 +6,8 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule, register_dependent_modules
-from utils.image_helpers import bilateral_filter, gen_gaussian_kernel
+from .basic_module import BasicModule, register_dependent_modules
+from .helpers import bilateral_filter, gen_gaussian_kernel
 
 
 @register_dependent_modules('csc')

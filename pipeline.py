@@ -12,7 +12,6 @@ from collections import OrderedDict
 import numpy as np
 
 from utils.yacs import Config
-from utils.image_helpers import ycbcr_to_rgb
 
 
 class Pipeline:
@@ -124,3 +123,20 @@ class Pipeline:
             raise NotImplementedError
 
         return output
+
+
+def ycbcr_to_rgb(ycbcr_array):
+    """ Convert YCbCr 3-channel array into sRGB array """
+
+    assert ycbcr_array.dtype == np.uint8
+
+    matrix = np.array([[298, 0, 411],
+                       [298, -101, -211],
+                       [298, 519, 0]], dtype=np.int32).T  # x256
+    bias = np.array([-57344, 34739, -71117], dtype=np.int32).reshape(1, 1, 3)  # x256
+
+    ycbcr_array = ycbcr_array.astype(np.int32)
+    rgb_array = np.right_shift(ycbcr_array @ matrix + bias, 8)
+    rgb_array = np.clip(rgb_array, 0, 255)
+
+    return rgb_array.astype(np.uint8)

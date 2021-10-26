@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule, register_dependent_modules
+from .basic_module import BasicModule, register_dependent_modules
 
 
 @register_dependent_modules(('csc', 'eeh'))

@@ -6,8 +6,8 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule
-from utils.image_helpers import pad, split_bayer, reconstruct_bayer, shift_array
+from .basic_module import BasicModule
+from .helpers import pad, split_bayer, reconstruct_bayer, shift_array
 
 
 class AAF(BasicModule):

@@ -7,7 +7,7 @@ from utils.yacs import Config
 
 
 def demo_test_raw():
-    print('\nProcessing test raw started')
+    print('Processing test raw started')
 
     cfg = Config('configs/test.yaml')
     pipeline = Pipeline(cfg)

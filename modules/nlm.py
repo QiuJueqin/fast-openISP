@@ -6,8 +6,8 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule, register_dependent_modules
-from utils.image_helpers import pad, shift_array, mean_filter
+from .basic_module import BasicModule, register_dependent_modules
+from .helpers import pad, shift_array, mean_filter
 
 
 @register_dependent_modules('csc')

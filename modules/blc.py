@@ -6,8 +6,8 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule
-from utils.image_helpers import split_bayer, reconstruct_bayer
+from .basic_module import BasicModule
+from .helpers import split_bayer, reconstruct_bayer
 
 
 class BLC(BasicModule):

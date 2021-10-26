@@ -6,8 +6,8 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule
-from utils.image_helpers import split_bayer, reconstruct_bayer, mean_filter
+from .basic_module import BasicModule
+from .helpers import split_bayer, reconstruct_bayer, mean_filter
 
 
 class CNF(BasicModule):

@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from modules.basic_module import BasicModule
+from .basic_module import BasicModule
 
 
 class CSC(BasicModule):
