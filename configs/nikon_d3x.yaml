@@ -38,7 +38,7 @@ blc:
 aaf: ~
 
 awb:
-  r_gain: &r_gain 2688                # x1024
+  r_gain: &r_gain 2689                # x1024
   gr_gain: 1024                       # x1024
   gb_gain: 1024                       # x1024
   b_gain: &b_gain 1294                # x1024
@@ -53,9 +53,9 @@ cfa:
 
 ccm:
   ccm:
-    - [ 1896, -811, -62, 0 ]          # x1024, copied from dcraw.c
-    - [ -160, 1687, -503, 0 ]
-    - [ 18, -557, 1563, 0 ]
+    - [ 1670, -508, -139, 0 ]          # x1024, copied from dcraw.c
+    - [ -20, 1404, -360, 0 ]
+    - [ 58, -406, 1372, 0 ]
 
 gac:
   gain: 256                           # x256
