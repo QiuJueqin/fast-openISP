@@ -1,6 +1,6 @@
 # Fast Open Image Signal Processor (fast-openISP)
 
-As told by its name, fast-openISP is a **faster** re-implementation of the [openISP](https://github.com/cruxopen/openISP) project.
+As told by its name, fast-openISP is a **faster** (and bugs-fixed) re-implementation of the [openISP](https://github.com/cruxopen/openISP) project.
 
 Compared to C-style code in the official openISP repo, fast-openISP uses pure matrix implementations based on Numpy, and increases processing speed **over 300 times**.
 
@@ -26,13 +26,25 @@ Here is the running time in my Ryzen 7 1700 8-core 3.00GHz machine with the 1920
 |End-to-end pipeline|2894.41s|8.48s       |
 
 
+# Usage
+
+Clone this repo and run
+
+```
+python demo.py
+```
+
+The ISP outputs will be saved to `./raw` directory.
+
+The only required package for pipeline execution is `Numpy`. `opencv-python` and `scikit-image` are required for data IO. 
+
 # Algorithms
 
-All modules in fast-openISP reproduce processing algorithms in openISP, except for EEH and BCC modules.
+All modules in fast-openISP reproduce [processing algorithms](https://github.com/cruxopen/openISP/blob/master/docs/Image%20Signal%20Processor.pdf) in openISP, except for EEH and BCC modules.
 
 ### EEH (edge enhancement)
 
-The official openISP uses the difference between the original and the gaussian-filtered Y-channel arrays as the edge map approximation. In fast-openISP, however, we replace gaussian with the bilateral filter, which gets better estimation to the edges, and consequently reduces the artifact when the enhancement gain is large.  
+The official openISP uses the subtraction between the original and the gaussian-filtered Y-channel arrays as the edge map approximation. In fast-openISP, however, we replace gaussian with the bilateral filter, which gets better estimation to the edges, and consequently reduces the artifact when the enhancement gain is large. Besides, the processing to pixels in the non-edge region has been slightly improved.
 
 ### BCC (brightness & contrast control)
 
@@ -41,7 +53,7 @@ The official openISP enhances the image contrast by pixel-wise enlarge the diffe
 
 # Parameters
 
-Tunable module parameters in fast-openISP are differently named from those in openISP, but they are all self-explained, and no doubt you can easily tell the counterparts in two repos. All parameters are managed in a yaml configuration file, and one yaml for one camera.   
+Tunable module parameters in fast-openISP are differently named from those in openISP, but they are all self-explained, and no doubt you can easily tell the counterparts in two repos. All parameters are managed in a yaml configuration file, and one yaml for one camera.
 
 # Demo
 
