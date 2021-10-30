@@ -1,9 +1,16 @@
+import os
+import os.path as op
+
 import cv2
 import numpy as np
 import skimage.io
 
 from pipeline import Pipeline
 from utils.yacs import Config
+
+
+output_dir = './output'
+os.makedirs(output_dir, exist_ok=True)
 
 
 def demo_test_raw():
@@ -18,7 +25,7 @@ def demo_test_raw():
 
     data, _ = pipeline.execute(bayer)
 
-    output_path = raw_path.replace('.RAW', '.png')
+    output_path = op.join(output_dir, 'test.png')
     output = cv2.cvtColor(data['output'], cv2.COLOR_RGB2BGR)
     cv2.imwrite(output_path, output)
 
@@ -34,7 +41,7 @@ def demo_nikon_d3x():
 
     data, _ = pipeline.execute(bayer)
 
-    output_path = pgm_path.replace('.pgm', '.png')
+    output_path = op.join(output_dir, 'color_checker.png')
     output = cv2.cvtColor(data['output'], cv2.COLOR_RGB2BGR)
     cv2.imwrite(output_path, output)
 

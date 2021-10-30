@@ -34,9 +34,12 @@ Clone this repo and run
 python demo.py
 ```
 
-The ISP outputs will be saved to `./raw` directory.
+The ISP outputs will be saved to `./output` directory.
 
-The only required package for pipeline execution is `Numpy`. `opencv-python` and `scikit-image` are required for data IO. 
+The only required package for pipeline execution is `numpy`. 
+
+`opencv-python` and `scikit-image` are required for data IO. 
+
 
 # Algorithms
 
