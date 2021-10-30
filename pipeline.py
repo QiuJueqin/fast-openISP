@@ -4,10 +4,14 @@
 # Author: Qiu Jueqin (qiujueqin@gmail.com)
 
 
+import os.path as op
+import sys
 import time
 import copy
+import math
 import importlib
 from collections import OrderedDict
+from multiprocessing import Process
 
 import numpy as np
 
@@ -22,20 +26,7 @@ class Pipeline:
         with self.cfg.unfreeze():
             self.cfg.saturation_values = saturation_values
 
-        enabled_modules = tuple(m for m, en in self.cfg.module_enable_status.items() if en)
-
-        self.modules = OrderedDict()
-        for module_name in enabled_modules:
-            package = importlib.import_module('modules.{}'.format(module_name))
-            module_cls = getattr(package, module_name.upper())
-            module = module_cls(self.cfg)
-
-            if hasattr(module, 'dependent_modules'):
-                for m in module.dependent_modules:
-                    if m not in enabled_modules:
-                        raise RuntimeError('{} is available only if {} is activated'.format(module_name, m))
-
-            self.modules[module_name] = module
+        self.modules = self.get_modules()
 
     def get_saturation_values(self):
         """
@@ -62,6 +53,29 @@ class Pipeline:
         return Config({'raw': raw_max_value,
                        'hdr': hdr_max_value,
                        'sdr': sdr_max_value})
+
+    def get_modules(self):
+        """ Get activated ISP modules according to the configuration """
+
+        if op.dirname(__file__) not in sys.path:
+            sys.path.insert(0, op.dirname(__file__))
+
+        enabled_modules = tuple(m for m, en in self.cfg.module_enable_status.items() if en)
+
+        modules = OrderedDict()
+        for module_name in enabled_modules:
+            package = importlib.import_module('modules.{}'.format(module_name))
+            module_cls = getattr(package, module_name.upper())
+            module = module_cls(self.cfg)
+
+            if hasattr(module, 'dependent_modules'):
+                for m in module.dependent_modules:
+                    if m not in enabled_modules:
+                        raise RuntimeError('{} is available only if {} is activated'.format(module_name, m))
+
+            modules[module_name] = module
+
+        return modules
 
     def execute(self, bayer, save_intermediates=False, verbose=True):
         """
@@ -123,6 +137,69 @@ class Pipeline:
             raise NotImplementedError
 
         return output
+
+    def run(self, raw_path, save_dir, load_raw_fn, suffix=''):
+        """
+        A higher level API that write ISP result into disk
+        :param raw_path: path to the raw file to be executed
+        :param save_dir: directory to save the ISP output (the output will share the filename with input)
+        :param load_raw_fn: function to load the Bayer array from the raw_path
+        :param suffix: suffix to added to the output filename
+        """
+
+        import cv2
+
+        bayer = load_raw_fn(raw_path)
+        data, _ = self.execute(bayer, save_intermediates=False, verbose=False)
+        output = cv2.cvtColor(data['output'], cv2.COLOR_RGB2BGR)
+
+        filename = op.splitext(op.basename(raw_path))[0]
+        save_path = op.join(save_dir, '{}.png'.format(filename + suffix))
+        cv2.imwrite(save_path, output)
+
+    def batch_run(self, raw_paths, save_dirs, load_raw_fn, suffixes='', num_processes=1):
+        """
+        Batch execution with multiprocessing
+        :param raw_paths: list of paths to the raw files to be executed
+        :param save_dirs: list of directories to save the outputs. If given a string, it will be copied
+            to a N-element list, where N is the number of paths in raw_paths
+        :param load_raw_fn: function to load the Bayer array from the raw_path
+        :param suffixes: a list of suffixes to added to the output filenames
+        :param num_processes: number of processes in multiprocessing
+        """
+
+        num_files = len(raw_paths)
+        num_batches = math.ceil(num_files / num_processes)
+
+        if not isinstance(save_dirs, (list, tuple)):
+            save_dirs = [save_dirs for _ in range(num_files)]
+        if not isinstance(suffixes, (list, tuple)):
+            suffixes = [suffixes for _ in range(num_files)]
+
+        for batch_id in range(num_batches):
+            indices = [batch_id * num_processes + rank for rank in range(num_processes)]
+            indices = [i for i in indices if i < num_files]
+            batch_size = len(indices)
+
+            raw_paths_batch = [raw_paths[i] for i in indices]
+            save_dirs_batch = [save_dirs[i] for i in indices]
+            suffixes_batch = [suffixes[i] for i in indices]
+
+            pool = []
+            for rank in range(batch_size):
+                pool.append(
+                    Process(target=self.run,
+                            kwargs={'raw_path': raw_paths_batch[rank],
+                                    'save_dir': save_dirs_batch[rank],
+                                    'load_raw_fn': load_raw_fn,
+                                    'suffix': suffixes_batch[rank]})
+                )
+
+            for p in pool:
+                p.start()
+
+            for p in pool:
+                p.join()
 
 
 def ycbcr_to_rgb(ycbcr_array):
