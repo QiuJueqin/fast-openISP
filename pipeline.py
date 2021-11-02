@@ -19,7 +19,12 @@ from utils.yacs import Config
 
 
 class Pipeline:
+    """ Core fast-openISP pipeline """
+
     def __init__(self, cfg):
+        """
+        :param cfg: Config object, camera configuration
+        """
         self.cfg = cfg
 
         saturation_values = self.get_saturation_values()
@@ -140,9 +145,9 @@ class Pipeline:
 
     def run(self, raw_path, save_dir, load_raw_fn, suffix=''):
         """
-        A higher level API that write ISP result into disk
-        :param raw_path: path to the raw file to be executed
-        :param save_dir: directory to save the ISP output (the output will share the filename with input)
+        A higher level API that writes ISP result into disk
+        :param raw_path: path to the raw file to be processed
+        :param save_dir: directory to save the output (the output will share the filename with input)
         :param load_raw_fn: function to load the Bayer array from the raw_path
         :param suffix: suffix to added to the output filename
         """
@@ -159,7 +164,7 @@ class Pipeline:
 
     def batch_run(self, raw_paths, save_dirs, load_raw_fn, suffixes='', num_processes=1):
         """
-        Batch execution with multiprocessing
+        Batch running with multiprocessing
         :param raw_paths: list of paths to the raw files to be executed
         :param save_dirs: list of directories to save the outputs. If given a string, it will be copied
             to a N-element list, where N is the number of paths in raw_paths
