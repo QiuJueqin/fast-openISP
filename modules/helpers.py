@@ -157,8 +157,8 @@ def bilateral_filter(array, spatial_weights, intensity_weights_lut, right_shift=
     padded_array = pad(array, pads=(filter_height // 2, filter_width // 2))
     shifted_arrays = shift_array(padded_array, window_size=(filter_height, filter_width))
 
-    bf_array = np.empty_like(array)
-    weights = np.empty_like(array)
+    bf_array = np.zeros_like(array)
+    weights = np.zeros_like(array)
 
     for i, shifted_array in enumerate(shifted_arrays):
         intensity_diff = (shifted_array - array) ** 2

@@ -23,7 +23,7 @@ class Pipeline:
 
     def __init__(self, cfg):
         """
-        :param cfg: Config object, camera configuration
+        :param cfg: yacs.Config object, configurations about camera specs and module parameters
         """
         self.cfg = cfg
 
