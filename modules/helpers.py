@@ -139,6 +139,32 @@ def mean_filter(array, filter_size=3):
     return (sum(shifted_arrays) / filter_size ** 2).astype(array.dtype)
 
 
+def gaussian_filter(array, kernel):
+    """
+    A faster reimplementation of the bilateral-filter
+    :param array: array to be filter: np.ndarray(H, W, ...), must be np.int dtype
+    :param kernel: np.ndarray(h, w)
+    :return: filtered array: np.ndarray(H, W, ...)
+    """
+
+    kh, kw = kernel.shape[:2]
+    kernel = kernel.flatten()
+
+    padded_array = pad(array, pads=(kh // 2, kw // 2))
+    shifted_arrays = shift_array(padded_array, window_size=(kh, kw))
+
+    gf_array = np.zeros_like(array)
+    weights = np.zeros_like(array)
+
+    for i, shifted_array in enumerate(shifted_arrays):
+        gf_array += kernel[i] * shifted_array
+        weights += kernel[i]
+
+    gf_array = (gf_array / weights).astype(array.dtype)
+
+    return gf_array
+
+
 def bilateral_filter(array, spatial_weights, intensity_weights_lut, right_shift=0):
     """
     A faster reimplementation of the bilateral-filter
