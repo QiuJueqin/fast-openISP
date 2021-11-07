@@ -74,18 +74,14 @@ bnf:
   spatial_sigma: 0.8                  # larger value has stronger smoothing effect
 
 eeh:
-  flat_threshold: 1                   # delta <= flat_threshold: set delta to 0
-  middle_threshold: 4                 # flat_threshold < delta <= middle_threshold: reduce delta
-  edge_threshold: 8                   # middle_threshold < delta <= edge_threshold: keep delta unchanged
-                                      # edge_threshold < delta: increase delta
-  edge_gain: 768                      # x256
+  flat_threshold: 4                   # delta <= flat_threshold: set delta to 0
+  edge_threshold: 8                   # delta > edge_threshold: increase delta by edge_gain
+  edge_gain: 384                      # x256
   delta_threshold: 64
 
 fcs:
-  delta_min: 8
+  delta_min: 4
   delta_max: 16
-  flat_gain: 256                      # x256
-  edge_gain: 0                        # x256
 
 hsc:
   hue_offset: 0                       # in degree
