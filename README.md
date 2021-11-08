@@ -67,44 +67,44 @@ and one yaml for one camera.
 
 # Demo
 
-<p align="center"><img src="assets/dpc.jpg" alt="img" align="right" width="600px"></p>
-
-<p align="center">Bayer Input</p>
-
-
-<p align="center"><img src="assets/cfa.jpg" alt="img" align="right" width="600px"></p>
-
-<p align="center">CFA Interpolation</p>
+|Bayer Input|
+|:-------------------------:|
+|<img src='figure/dpc.png' width='600'>| 
 
 
-<p align="center"><img src="assets/ccm.jpg" alt="img" align="right" width="600px"></p>
-
-<p align="center">Color Correction</p>
-
-
-<p align="center"><img src="assets/gca.jpg" alt="img" align="right" width="600px"></p>
-
-<p align="center">Gamma Correction</p>
+|CFA Interpolation|
+|:-------------------------:|
+|<img src='figure/cfa.png' width='600'>| 
 
 
-<p align="center"><img src="assets/bnf.jpg" alt="img" align="right" width="600px"></p>
-
-<p align="center">Non-local Means & Bilateral Filter</p>
-
-
-<p align="center"><img src="assets/eeh.jpg" alt="img" align="right" width="600px"></p>
-
-<p align="center">Edge Enhancement</p>
+|Color Correction|
+|:-------------------------:|
+|<img src='figure/ccm.png' width='600'>| 
 
 
-<p align="center"><img src="assets/hsc.jpg" alt="img" align="right" width="600px"></p>
+|Gamma Correction|
+|:-------------------------:|
+|<img src='figure/gac.png' width='600'>| 
 
-<p align="center">Hue & Saturation Control</p>
+
+|Non-local Means & Bilateral Filter|
+|:-------------------------:|
+|<img src='figure/bnf.png' width='600'>| 
 
 
-<p align="center"><img src="assets/bcc.jpg" alt="img" align="right" width="600px"></p>
+|Edge Enhancement|
+|:-------------------------:|
+|<img src='figure/eeh.png' width='600'>| 
 
-<p align="center">Brightness & Contrast Control</p>
+
+|Hue & Saturation Control|
+|:-------------------------:|
+|<img src='figure/hsc.png' width='600'>| 
+
+
+|Brightness & Contrast Control|
+|:-------------------------:|
+|<img src='figure/bcc.png' width='600'>| 
 
 
 # License
