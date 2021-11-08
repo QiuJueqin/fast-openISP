@@ -69,42 +69,42 @@ and one yaml for one camera.
 
 |Bayer Input|
 |:-------------------------:|
-|<img src='figure/dpc.png' width='600'>| 
+|<img src='assets/dpc.png' width='600'>| 
 
 
 |CFA Interpolation|
 |:-------------------------:|
-|<img src='figure/cfa.png' width='600'>| 
+|<img src='assets/cfa.png' width='600'>| 
 
 
 |Color Correction|
 |:-------------------------:|
-|<img src='figure/ccm.png' width='600'>| 
+|<img src='assets/ccm.png' width='600'>| 
 
 
 |Gamma Correction|
 |:-------------------------:|
-|<img src='figure/gac.png' width='600'>| 
+|<img src='assets/gac.png' width='600'>| 
 
 
 |Non-local Means & Bilateral Filter|
 |:-------------------------:|
-|<img src='figure/bnf.png' width='600'>| 
+|<img src='assets/bnf.png' width='600'>| 
 
 
 |Edge Enhancement|
 |:-------------------------:|
-|<img src='figure/eeh.png' width='600'>| 
+|<img src='assets/eeh.png' width='600'>| 
 
 
 |Hue & Saturation Control|
 |:-------------------------:|
-|<img src='figure/hsc.png' width='600'>| 
+|<img src='assets/hsc.png' width='600'>| 
 
 
 |Brightness & Contrast Control|
 |:-------------------------:|
-|<img src='figure/bcc.png' width='600'>| 
+|<img src='assets/bcc.png' width='600'>| 
 
 
 # License
