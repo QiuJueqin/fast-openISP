@@ -67,35 +67,35 @@ and one yaml for one camera.
 
 # Demo
 
-<p align="center"><a href="assets/dpc.jpg"><img src="assets/dpc.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/dpc.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Bayer Input</p>
 
-<p align="center"><a href="assets/cfa.jpg"><img src="assets/cfa.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/cfa.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">CFA Interpolation</p>
 
-<p align="center"><a href="assets/ccm.jpg"><img src="assets/ccm.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/ccm.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Color Correction</p>
 
-<p align="center"><a href="assets/gca.jpg"><img src="assets/gca.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/gca.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Gamma Correction</p>
 
-<p align="center"><a href="assets/bnf.jpg"><img src="assets/bnf.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/bnf.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Non-local Means & Bilateral Filter</p>
 
-<p align="center"><a href="assets/eeh.jpg"><img src="assets/eeh.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/eeh.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Edge Enhancement</p>
 
-<p align="center"><a href="assets/hsc.jpg"><img src="assets/hsc.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/hsc.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Hue & Saturation Control</p>
 
-<p align="center"><a href="assets/bcc.jpg"><img src="assets/bcc.jpg" alt="img" align="right" width="720px"></a></p>
+<p align="center"><img src="assets/bcc.jpg" alt="img" align="right" width="600px"></a></p>
 
 <p align="center">Brightness & Contrast Control</p>
 
