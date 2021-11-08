@@ -9,13 +9,11 @@ from pipeline import Pipeline
 from utils.yacs import Config
 
 
-output_dir = './output'
-os.makedirs(output_dir, exist_ok=True)
+OUTPUT_DIR = './output'
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def demo_test_raw():
-    print('Processing test raw started')
-
     cfg = Config('configs/test.yaml')
     pipeline = Pipeline(cfg)
 
@@ -25,14 +23,12 @@ def demo_test_raw():
 
     data, _ = pipeline.execute(bayer)
 
-    output_path = op.join(output_dir, 'test.png')
+    output_path = op.join(OUTPUT_DIR, 'test.png')
     output = cv2.cvtColor(data['output'], cv2.COLOR_RGB2BGR)
     cv2.imwrite(output_path, output)
 
 
 def demo_nikon_d3x():
-    print('\nProcessing Nikon D3x raw started')
-
     cfg = Config('configs/nikon_d3x.yaml')
     pipeline = Pipeline(cfg)
 
@@ -41,11 +37,43 @@ def demo_nikon_d3x():
 
     data, _ = pipeline.execute(bayer)
 
-    output_path = op.join(output_dir, 'color_checker.png')
+    output_path = op.join(OUTPUT_DIR, 'color_checker.png')
     output = cv2.cvtColor(data['output'], cv2.COLOR_RGB2BGR)
     cv2.imwrite(output_path, output)
 
 
+def demo_intermediate_results():
+    cfg = Config('configs/nikon_d3x.yaml')
+
+    # Boost parameters for exaggeration effect
+    with cfg.unfreeze():
+        cfg.module_enable_status.nlm = True
+        cfg.nlm.h = 15
+        cfg.eeh.flat_threshold = 1
+        cfg.eeh.flat_threshold = 2
+        cfg.eeh.edge_gain = 1280
+        cfg.hsc.saturation_gain = 384
+        cfg.bcc.contrast_gain = 300
+
+    pipeline = Pipeline(cfg)
+
+    pgm_path = 'raw/color_checker.pgm'
+    bayer = skimage.io.imread(pgm_path).astype(np.uint16)
+
+    _, intermediates = pipeline.execute(bayer, save_intermediates=True)
+    for module_name, result in intermediates.items():
+        output = pipeline.get_output(result)
+        output_path = op.join(OUTPUT_DIR, '{}.jpg'.format(module_name))
+        output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(output_path, output)
+
+
 if __name__ == '__main__':
+    print('Processing test raw...')
     demo_test_raw()
+
+    print('Processing Nikon D3x raw...')
     demo_nikon_d3x()
+
+    print('Processing Nikon D3x raw with intermediate results...')
+    demo_intermediate_results()
