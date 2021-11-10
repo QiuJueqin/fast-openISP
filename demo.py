@@ -49,11 +49,12 @@ def demo_intermediate_results():
     with cfg.unfreeze():
         cfg.module_enable_status.nlm = True
         cfg.nlm.h = 15
+        cfg.ceh.clip_limit = 0.04
         cfg.eeh.flat_threshold = 1
         cfg.eeh.flat_threshold = 2
         cfg.eeh.edge_gain = 1280
-        cfg.hsc.saturation_gain = 384
-        cfg.bcc.contrast_gain = 300
+        cfg.hsc.saturation_gain = 320
+        cfg.bcc.contrast_gain = 280
 
     pipeline = Pipeline(cfg)
 

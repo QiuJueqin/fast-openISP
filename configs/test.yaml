@@ -10,6 +10,7 @@ module_enable_status:
   csc: True
   nlm: True
   bnf: True
+  ceh: True
   eeh: True
   fcs: True
   hsc: True
@@ -72,6 +73,10 @@ nlm:
 bnf:
   intensity_sigma: 0.8                # larger value has stronger smoothing effect
   spatial_sigma: 0.8                  # larger value has stronger smoothing effect
+
+ceh:
+  tiles: [4, 6]
+  clip_limit: 0.01
 
 eeh:
   flat_threshold: 4                   # delta <= flat_threshold: set delta to 0
