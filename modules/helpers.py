@@ -83,6 +83,32 @@ def pad(array, pads, mode='reflect'):
     return np.pad(array, pads, mode)
 
 
+def crop(array, crops):
+    """
+    Crop an array by given margins
+    :param array: np.ndarray(H, W, ...)
+    :param crops: {int, sequence}
+        if int, crops top, bottom, left, and right directions with the same margin
+        if 2-element sequence: (y-direction crop, x-direction crop)
+        if 4-element sequence: (top crop, bottom crop, left crop, right crop)
+    :return: cropped array: np.ndarray(H', W', ...)
+    """
+
+    if isinstance(crops, (list, tuple, np.ndarray)):
+        if len(crops) == 2:
+            top_crop = bottom_crop = crops[0]
+            left_crop = right_crop = crops[1]
+        elif len(crops) == 4:
+            top_crop, bottom_crop, left_crop, right_crop = crops
+        else:
+            raise NotImplementedError
+    else:
+        top_crop = bottom_crop = left_crop = right_crop = crops
+
+    height, width = array.shape
+    return array[top_crop: height - bottom_crop, left_crop: width - right_crop, ...]
+
+
 def shift_array(padded_array, window_size):
     """
     Shift an array within a window and generate window_size**2 shifted arrays
