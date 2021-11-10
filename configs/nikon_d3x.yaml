@@ -1,4 +1,4 @@
-module_enable_status:
+module_enable_status:                 # do NOT modify modules order
   dpc: True
   blc: True
   aaf: True

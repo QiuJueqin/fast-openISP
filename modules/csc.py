@@ -6,9 +6,10 @@
 
 import numpy as np
 
-from .basic_module import BasicModule
+from .basic_module import BasicModule, register_dependent_modules
 
 
+@register_dependent_modules('gac')
 class CSC(BasicModule):
     def __init__(self, cfg):
         super().__init__(cfg)

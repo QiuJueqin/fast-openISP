@@ -105,7 +105,7 @@ def crop(array, crops):
     else:
         top_crop = bottom_crop = left_crop = right_crop = crops
 
-    height, width = array.shape
+    height, width = array.shape[:2]
     return array[top_crop: height - bottom_crop, left_crop: width - right_crop, ...]
 
 
