@@ -10,22 +10,23 @@ Here is the running time in my Ryzen 7 1700 8-core 3.00GHz machine with the 1920
 
 |Module             |openISP |fast-openISP|
 |:-----------------:|:------:|:----------:|
-|DPC                |20.57s  |0.30s       |
+|DPC                |20.57s  |0.29s       |
 |BLC                |11.75s  |0.02s       |
 |AAF                |16.87s  |0.08s       |
 |AWB                |7.54s   |0.02s       |
-|CNF                |73.99s  |0.26s       |
-|CFA                |40.71s  |0.21s       |
-|CCM                |56.85s  |0.07s       |
+|CNF                |73.99s  |0.25s       |
+|CFA                |40.71s  |0.20s       |
+|CCM                |56.85s  |0.06s       |
 |GAC                |25.71s  |0.07s       |
 |CSC                |60.32s  |0.06s       |
-|NLM                |1600.95s|5.52s       |
-|BNF                |801.24s |0.77s       |
-|EEH                |68.60s  |0.83s       |
+|NLM                |1600.95s|5.37s       |
+|BNF                |801.24s |0.75s       |
+|CEH                |-       |0.14s       |
+|EEH                |68.60s  |0.24s       |
 |FCS                |25.07s  |0.08s       |
 |HSC                |56.34s  |0.07s       |
 |BBC                |27.92s  |0.03s       |
-|End-to-end pipeline|2894.41s|8.48s       |
+|End-to-end pipeline|2894.41s|7.82s       |
 
 # Usage
 
@@ -44,7 +45,8 @@ data IO.
 
 All modules in fast-openISP
 reproduce [processing algorithms](https://github.com/cruxopen/openISP/blob/master/docs/Image%20Signal%20Processor.pdf)
-in openISP, except for EEH and BCC modules.
+in openISP, except for EEH and BCC modules. In addition, a CEH (contrast enhancement) module with [CLAHE](https://en.wikipedia.org/wiki/Adaptive_histogram_equalization#Contrast_Limited_AHE) is 
+added into the pipeline.
 
 ### EEH (edge enhancement)
 
@@ -58,6 +60,7 @@ Y-channels as the edge estimation, and consequently reduces the artifact when th
 The official openISP enhances the image contrast by pixel-wise enlarge the difference between pixel values and a
 constant integer (128). In fast-openISP, we use the median value of the whole frame instead of a constant.
 
+
 # Parameters
 
 Tunable module parameters in fast-openISP are differently named from those in openISP, but they are all self-explained,
@@ -68,42 +71,47 @@ and one yaml for one camera.
 
 |Bayer Input|
 |:-------------------------:|
-|<img src='assets/dpc.jpg' width='600'>| 
+|<img src='assets/dpc.jpg' width='580'>| 
 
 
 |CFA Interpolation|
 |:-------------------------:|
-|<img src='assets/cfa.jpg' width='600'>| 
+|<img src='assets/cfa.jpg' width='580'>| 
 
 
 |Color Correction|
 |:-------------------------:|
-|<img src='assets/ccm.jpg' width='600'>| 
+|<img src='assets/ccm.jpg' width='580'>| 
 
 
 |Gamma Correction|
 |:-------------------------:|
-|<img src='assets/gac.jpg' width='600'>| 
+|<img src='assets/gac.jpg' width='580'>| 
 
 
 |Non-local Means & Bilateral Filter|
 |:-------------------------:|
-|<img src='assets/bnf.jpg' width='600'>| 
+|<img src='assets/bnf.jpg' width='580'>| 
+
+
+|Contrast Enhancement|
+|:-------------------------:|
+|<img src='assets/ceh.jpg' width='580'>| 
 
 
 |Edge Enhancement|
 |:-------------------------:|
-|<img src='assets/eeh.jpg' width='600'>| 
+|<img src='assets/eeh.jpg' width='580'>| 
 
 
 |Hue & Saturation Control|
 |:-------------------------:|
-|<img src='assets/hsc.jpg' width='600'>| 
+|<img src='assets/hsc.jpg' width='580'>| 
 
 
 |Brightness & Contrast Control|
 |:-------------------------:|
-|<img src='assets/bcc.jpg' width='600'>| 
+|<img src='assets/bcc.jpg' width='580'>| 
 
 
 # License
