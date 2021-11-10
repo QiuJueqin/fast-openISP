@@ -53,7 +53,7 @@ added into the pipeline.
 The official openISP uses
 an [asymmetric kernel](https://github.com/cruxopen/openISP/blob/49de48282e66bdb283779394a23c9c0d6ba238ff/isp_pipeline.py#L150)
 to extract edge map. In fast-openISP, however, we use the subtraction between the original and the gaussian filtered
-Y-channels as the edge estimation, and consequently reduces the artifact when the enhancement gain is large.
+Y-channels as the edge estimation, which reduces the artifact when the enhancement gain is large.
 
 ### BCC (brightness & contrast control)
 
