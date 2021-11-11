@@ -79,9 +79,9 @@ ceh:
   clip_limit: 0.02
 
 eeh:
+  edge_gain: 384                      # x256
   flat_threshold: 4                   # delta <= flat_threshold: set delta to 0
   edge_threshold: 8                   # delta > edge_threshold: increase delta by edge_gain
-  edge_gain: 384                      # x256
   delta_threshold: 64
 
 fcs:
