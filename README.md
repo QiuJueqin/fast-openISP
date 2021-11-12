@@ -21,12 +21,15 @@ Here is the running time in my Ryzen 7 1700 8-core 3.00GHz machine with the 1920
 |CSC                |60.32s  |0.06s       |
 |NLM                |1600.95s|5.37s       |
 |BNF                |801.24s |0.75s       |
-|CEH                |-       |0.14s       |
+|CEH<sup>*</sup>    |-       |0.14s       |
 |EEH                |68.60s  |0.24s       |
 |FCS                |25.07s  |0.08s       |
 |HSC                |56.34s  |0.07s       |
 |BBC                |27.92s  |0.03s       |
 |End-to-end pipeline|2894.41s|7.82s       |
+
+> <sup>*</sup> CEH module is not included in the official openISP pipeline.
+
 
 # Usage
 
@@ -46,7 +49,7 @@ data IO.
 All modules in fast-openISP
 reproduce [processing algorithms](https://github.com/cruxopen/openISP/blob/master/docs/Image%20Signal%20Processor.pdf)
 in openISP, except for EEH and BCC modules. In addition, a CEH (contrast enhancement) module with [CLAHE](https://en.wikipedia.org/wiki/Adaptive_histogram_equalization#Contrast_Limited_AHE) is 
-added into the pipeline.
+added into the fast-openISP pipeline.
 
 ### EEH (edge enhancement)
 
@@ -57,15 +60,15 @@ Y-channels as the edge estimation, which reduces the artifact when the enhanceme
 
 ### BCC (brightness & contrast control)
 
-The official openISP enhances the image contrast by pixel-wise enlarge the difference between pixel values and a
+The official openISP enhances the image contrast by pixel-wise enlarging the difference between pixel values and a
 constant integer (128). In fast-openISP, we use the median value of the whole frame instead of a constant.
 
 
 # Parameters
 
-Tunable module parameters in fast-openISP are differently named from those in openISP, but they are all self-explained,
-and no doubt you can easily tell the counterparts in two repos. All parameters are managed in a yaml configuration file,
-and one yaml for one camera.
+Tunable parameters in fast-openISP are differently named from those in openISP, but they are all self-explained,
+and no doubt you can easily tell the counterparts in two repos. All parameters are managed in a yaml 
+in [`./configs`](./configs), one file per camera.
 
 # Demo
 
