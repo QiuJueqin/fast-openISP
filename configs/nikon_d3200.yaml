@@ -68,7 +68,7 @@ csc: ~
 nlm:
   search_window_size: 11
   patch_size: 5
-  h: 4                               # larger value has stronger smoothing effect
+  h: 4                                # larger value has stronger smoothing effect
 
 bnf:
   intensity_sigma: 0.5                # larger value has stronger smoothing effect
