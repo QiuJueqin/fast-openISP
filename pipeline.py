@@ -94,6 +94,8 @@ class Pipeline:
             intermediates: a dict containing intermediate results if save_intermediates=True,
                 otherwise a empty dict
         """
+        def print_(*args, **kwargs):
+            return print(*args, **kwargs) if verbose else None
 
         pipeline_start = time.time()
 
@@ -102,20 +104,16 @@ class Pipeline:
 
         for module_name, module in self.modules.items():
             start = time.time()
-            if verbose:
-                print('Executing {}... '.format(module_name), end='', flush=True)
+            print_('Executing {}... '.format(module_name), end='', flush=True)
 
             module.execute(data)
             if save_intermediates:
                 intermediates[module_name] = copy.copy(data)
 
-            if verbose:
-                print('Done. Elapsed {:.3f}s'.format(time.time() - start))
+            print_('Done. Elapsed {:.3f}s'.format(time.time() - start))
 
         data['output'] = self.get_output(data)
-
-        if verbose:
-            print('Pipeline elapsed {:.3f}s'.format(time.time() - pipeline_start))
+        print_('Pipeline elapsed {:.3f}s'.format(time.time() - pipeline_start))
 
         return data, intermediates
 
