@@ -1,4 +1,4 @@
-# File: config.py
+# File: yacs.py
 # Description: Core module for YACS
 # Created: 2021/6/15 20:30
 # Author: Qiu Jueqin (qiujueqin@gmail.com)
@@ -14,8 +14,8 @@ from contextlib import contextmanager
 import yaml
 
 """
-Yet Another Configuration System: a lightweight yet sufficiently powerful configuration system 
-with no 3rd-party dependency
+Yet Another Configuration System: a lightweight yet sufficiently powerful 
+configuration system with no 3rd-party dependency
 
 You can instantiate a Config object from a yaml file:
 
@@ -44,8 +44,8 @@ The regular dict way:
 
     >>> bs = cfg['batch_size']
 
-and the dotted-dict way (more recommended since it requires less keyboard hits and save your 
-line width)
+and the dotted-dict way (more recommended since it requires less keyboard 
+hits and save your line width)
 
     >>> bs = cfg.batch_size
 
@@ -72,8 +72,9 @@ class Config(OrderedDict):
             self.from_namespace(init)
         else:
             raise TypeError(
-                'Config could only be instantiated from a dict, a yaml filepath, or an '
-                'argparse.Namespace object, but given a {} object'.format(type(init))
+                f'Config could only be instantiated from a dict, a yaml '
+                f'filepath, or an argparse.Namespace object, but given a '
+                f'{type(init)} object'
             )
 
     # ---------------- Immutability ----------------
@@ -88,8 +89,8 @@ class Config(OrderedDict):
     @contextmanager
     def unfreeze(self):
         """
-        When a Config is frozen (a default action once it is instantiated), users have to use the
-        unfreeze() context manager to modify it:
+        When a Config is frozen (a default action once it is instantiated),
+        users have to use the unfreeze() context manager to modify it:
 
         >>> cfg = Config('default_config.yaml')
         >>> with cfg.unfreeze():
@@ -126,7 +127,9 @@ class Config(OrderedDict):
         if key in self:
             return self[key]
         else:
-            raise AttributeError('attempted to access a non-existing attribute: {}'.format(key))
+            raise AttributeError(
+                f'attempted to access a non-existing attribute: {key}'
+            )
 
     # ---------------- Input ----------------
 
@@ -137,7 +140,7 @@ class Config(OrderedDict):
         """
 
         if not isinstance(dic, dict):
-            raise TypeError('expected a dict, but given a {} object'.format(type(dic)))
+            raise TypeError(f'expected a dict, but given a {type(dic)}')
 
         super().__init__(Config._from_dict(dic))
         self.freeze()
@@ -147,12 +150,12 @@ class Config(OrderedDict):
 
         if not isinstance(yaml_path, (str, pathlib.Path)):
             raise TypeError(
-                'expected a path string or a pathlib.Path object, but given a {} object'.format(
-                    type(yaml_path))
+                f'expected a path string or a pathlib.Path object, but given '
+                f'a {type(yaml_path)}'
             )
 
         if not op.isfile(str(yaml_path)):
-            raise FileNotFoundError('file {} does not exist'.format(yaml_path))
+            raise FileNotFoundError(f'file {yaml_path} does not exist')
 
         with open(yaml_path, 'r') as fp:
             dic = yaml.safe_load(fp)
@@ -164,60 +167,65 @@ class Config(OrderedDict):
         """
         Instantiation from an argparse.Namespace object.
 
-        Since argparse doesn't support nested arguments, we treat dot separator in the arguments
-        as a notation to recursively create a child Config object.
+        Since argparse doesn't support nested arguments, we treat dot
+        separator in the arguments as a notation to recursively create a
+        child Config object.
 
-        For example, creating an argparse.ArgumentParser with '--foo.bar' argument:
+        For example, creating an argparse.ArgumentParser with '--foo.bar'
+        argument:
 
         >>> import argparse
         >>> parser = argparse.ArgumentParser()
         >>> parser.add_argument('--foo.bar', type=int, default=42)
         >>> args = parser.parse_args()  # an argparse.Namespace object
 
-        Given the returned argparse.Namespace object 'args', from_namespace() will create a
-        Config object as if it was instantiated from a nested dict d = {'foo': {'bar': 42}}
+        Given the returned argparse.Namespace object 'args', from_namespace()
+        will create a Config object as if it was instantiated from a nested
+        dict d = {'foo': {'bar': 42}}
         """
 
         if not isinstance(namespace, argparse.Namespace):
             raise TypeError(
-                'expected an argparse.Namespace object, but given a {} object'.format(
-                    type(namespace))
+                f'expected an argparse.Namespace object, but given a '
+                f'{type(namespace)} '
             )
 
         nested_dict = self._separator_dict_to_nested_dict(vars(namespace))
         super().__init__(Config._from_dict(nested_dict))
         self.freeze()
 
-    def merge(self, other, allow_new_attributes=False, keep_existed_attributes=True):
+    def merge(self, other, allow_new_attr=False, keep_existed_attr=True):
         """
         Recursively merge from other object
 
-        :param other: Config object | dict | yaml filepath | argparse.Namespace object
-        :param allow_new_attributes: whether allow to add new attributes
+        :param other: Config object | dict | yaml filepath |
+            argparse.Namespace object
+        :param allow_new_attr: whether allow to add new attributes
 
         Example:
 
         >>> cfg = Config({'optimizer': 'adam'})
-        >>> cfg.merge({'lr': 0.001}, allow_new_attributes=True)
+        >>> cfg.merge({'lr': 0.001}, allow_new_attr=True)
         >>> cfg.print()
 
         optimizer: adam
         lr: 0.001
 
-        >>> cfg.merge({'weight_decay': 1E-7}, allow_new_attributes=False)
+        >>> cfg.merge({'weight_decay': 1E-7}, allow_new_attr=False)
 
         AttributeError: attempted to add a new attribute: weight_decay
 
-        :param keep_existed_attributes: whether keep those attributes that are not in 'other'.
-        You may wish to trigger this if requires to completely replace a child Config object.
-        See example/examples.py: Example 5 for a practical usage.
+        :param keep_existed_attr: whether keep those attributes that are not
+            in 'other'. You may wish to trigger this if requires to completely
+            replace a child Config object. See example/examples.py: Example 5
+            for a practical usage.
 
         Example:
 
         >>> cfg1 = Config({'foo': {'Alice': 0, 'Bob': 1}})
-        >>> cfg2 = cfg1.clone()
-        >>> other = {'foo': {'Carol': 42}}
-        >>> cfg1.merge(other, allow_new_attributes=True)
+        >>> cfg2 = cfg1.copy()
+        >>> another = {'foo': {'Carol': 42}}
+        >>> cfg1.merge(another, allow_new_attr=True)
         >>> cfg1.print()
 
         foo:
@@ -225,7 +233,7 @@ class Config(OrderedDict):
             Bob: 1
             Carol: 42
 
-        >>> cfg2.merge(other, allow_new_attributes=True, keep_existed_attributes=False)
+        >>> cfg2.merge(another, allow_new_attr=True, keep_existed_attr=False)
         >>> cfg2.print()
 
         foo:
@@ -238,24 +246,24 @@ class Config(OrderedDict):
             other = Config(other)
         else:
             raise TypeError(
-                'attempted to merge from an unsupported {} object'.format(type(other))
+                f'attempted to merge from an unsupported {type(other)} object'
             )
 
-        def _merge(source_cfg, other_cfg, allow_add_new, keep_existed):
+        def _merge(source_cfg, other_cfg, add_new, keep_existed):
             """ Recursively merge the new Config object into the source one """
 
             with source_cfg.unfreeze():
                 for k, v in other_cfg.items():
-                    if k not in source_cfg and not allow_add_new:
+                    if k not in source_cfg and not add_new:
                         raise AttributeError(
-                            'attempted to add an attribute {} but it is not found in the source '
-                            'Config. Set \'allow_new_attributes\' to True if requires to add new '
-                            'attribute'.format(k)
+                            f'attempted to add an attribute {k} but it is not '
+                            f'found in the source Config. Set `allow_new_attr` '
+                            f'to True if requires to add new attributes'
                         )
 
                     if isinstance(v, Config):
-                        if k in source_cfg:
-                            _merge(source_cfg[k], v, allow_add_new, keep_existed)
+                        if isinstance(source_cfg.get(k, None), Config):
+                            _merge(source_cfg[k], v, add_new, keep_existed)
                         else:
                             source_cfg[k] = v
                     else:
@@ -264,20 +272,23 @@ class Config(OrderedDict):
                 if not keep_existed:
                     source_keys = list(source_cfg.keys())
                     for k in source_keys:
-                        if k not in other_cfg and not isinstance(source_cfg[k], Config):
+                        if k not in other_cfg and \
+                                not isinstance(source_cfg[k], Config):
                             source_cfg.remove(k)
 
-        _merge(self, other, allow_new_attributes, keep_existed_attributes)
+        _merge(self, other, allow_new_attr, keep_existed_attr)
 
     # ---------------- Output ----------------
 
-    def to_dict(self):
+    def to_dict(self, alphabetical=False):
         """
         Convert a Config object to a (nested) regular dict.
         An inverse method to self.from_dict()
         """
 
         def _to_dict(config):
+            if alphabetical:
+                config = sorted(config.items(), key=lambda x: x[0])
             dic = dict(config)
             for k, v in dic.items():
                 if isinstance(v, Config):
@@ -290,8 +301,9 @@ class Config(OrderedDict):
         """
         Create an argparse.ArgumentParser object with keys as arguments.
 
-        Since argparse doesn't support nested arguments, we concatenate keys over hierarchies
-        into a *dotted* argument. For example, supposing a Config object is organized as following:
+        Since argparse doesn't support nested arguments, we concatenate keys
+        over hierarchies into a *dotted* argument. For example, supposing a
+        Config object is organized as following:
 
         >>> cfg = {
         >>>     'foo': {
@@ -299,9 +311,9 @@ class Config(OrderedDict):
         >>>     }
         >>> }
 
-        Then keys 'foo' and 'bar' will be concatenated into a new argument '--foo.bar',
-        so by calling cfg.to_parser(), it is equivalent to creating an ArgumentParser object as
-        following:
+        Then keys 'foo' and 'bar' will be concatenated into a new argument
+        '--foo.bar', so by calling cfg.to_parser(), it is equivalent to
+        creating an ArgumentParser object as following:
 
         >>> parser = argparse.ArgumentParser()
         >>> parser.add_argument('--foo.bar', type=int, default=42)
@@ -313,16 +325,16 @@ class Config(OrderedDict):
 
         parser = argparse.ArgumentParser()
         for k, v in separator_dict.items():
-            parser.add_argument('--{}'.format(k), type=type(v), default=v)
+            parser.add_argument(f'--{k}', type=type(v), default=v)
 
         return parser
 
     def dump(self, save_path):
         """ Dump a Config object into a yaml file """
         with open(save_path, 'w') as fp:
-            yaml.safe_dump(self.to_dict(), fp, sort_keys=False)
+            yaml.safe_dump(self.to_dict(alphabetical=True), fp)
 
-    def clone(self):
+    def copy(self):
         """ Create a deep copy of the Config object """
         return Config(copy.deepcopy(self.to_dict()))
 
@@ -332,6 +344,9 @@ class Config(OrderedDict):
         return self.to_dict().__repr__()
 
     def __str__(self):
+        return self.to_dict().__repr__()
+
+    def _format(self):
 
         def _to_string(dic, indent=0):
             texts = []
@@ -345,7 +360,7 @@ class Config(OrderedDict):
         return '\n'.join(_to_string(self))
 
     def print(self, streamer=print):
-        streamer(str(self))
+        streamer(self._format())
 
     def remove(self, key):
         """ Remove an attribute by its key. """
@@ -353,7 +368,9 @@ class Config(OrderedDict):
         if self.is_frozen:
             raise AttributeError('attempted to modify an immutable Config')
         if key not in self:
-            raise AttributeError('attempted to delete a non-existing attribute: {}'.format(key))
+            raise AttributeError(
+                f'attempted to delete a non-existing attribute: {key}'
+            )
 
         del self[key]
 
@@ -375,7 +392,8 @@ class Config(OrderedDict):
         """
         Create a nested dict from a single-hierarchy dict.
 
-        For example, given a non-nested dict in which part of keys contains dots:
+        For example, given a non-nested dict in which part of keys contains
+        dots:
 
         d = {
             'foo': 42,
@@ -384,7 +402,8 @@ class Config(OrderedDict):
             'bar.baz.world': 'WORLD'
         }
 
-        _separator_dict_to_nested_dict(d, separator='.') converts it into a nested dict:
+        _separator_dict_to_nested_dict(d, separator='.') converts it into a
+        nested dict:
 
         {
             'foo': 42,
@@ -440,8 +459,9 @@ class Config(OrderedDict):
             }
         }
 
-        _nested_dict_to_separator_dict(d, separator='.') converts it into a non-nested dict in
-        which each key is the concatenation of keys from different hierarchies:
+        _nested_dict_to_separator_dict(d, separator='.') converts it into a
+        non-nested dict in which each key is the concatenation of keys from
+        different hierarchies:
 
         {
             'foo': 42,
@@ -458,7 +478,7 @@ class Config(OrderedDict):
         def _create_separator_dict(x, key='', separator_dict={}):
             if isinstance(x, dict):
                 for k, v in x.items():
-                    kk = '{}{}{}'.format(key, separator, k) if key else k
+                    kk = f'{key}{separator}{k}' if key else k
                     _create_separator_dict(x[k], kk)
             else:
                 separator_dict[key] = x
