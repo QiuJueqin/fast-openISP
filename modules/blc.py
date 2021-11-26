@@ -21,10 +21,12 @@ class BLC(BasicModule):
         bayer = data['bayer'].astype(np.int32)
 
         r, gr, gb, b = split_bayer(bayer, self.cfg.hardware.bayer_pattern)
-        r -= self.params.bl_r
-        b -= self.params.bl_b
+        r = np.clip(r - self.params.bl_r, 0, None)
+        b = np.clip(b - self.params.bl_b, 0, None)
         gr -= (self.params.bl_gr - np.right_shift(r * self.alpha, 10))
         gb -= (self.params.bl_gb - np.right_shift(b * self.beta, 10))
-        blc_bayer = reconstruct_bayer((r, gr, gb, b), self.cfg.hardware.bayer_pattern)
+        blc_bayer = reconstruct_bayer(
+            (r, gr, gb, b), self.cfg.hardware.bayer_pattern
+        )
 
-        data['bayer'] = blc_bayer.astype(np.uint16)
+        data['bayer'] = np.clip(blc_bayer, 0, None).astype(np.uint16)
