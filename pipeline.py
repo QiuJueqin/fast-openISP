@@ -16,6 +16,7 @@ from multiprocessing import Process
 import numpy as np
 
 from utils.yacs import Config
+from modules.basic_module import MODULE_DEPENDENCIES
 
 
 class Pipeline:
@@ -47,11 +48,12 @@ class Pipeline:
 
         # Saturation values should be carefully calculated if BLC module is activated
         if 'blc' in self.cfg.module_enable_status:
-            hdr_r_max_value = raw_max_value - self.cfg.blc.bl_r
-            hdr_b_max_value = raw_max_value - self.cfg.blc.bl_b
-            hdr_gr_max_value = int(raw_max_value - self.cfg.blc.bl_gr + hdr_r_max_value * self.cfg.blc.alpha / 1024)
-            hdr_gb_max_value = int(raw_max_value - self.cfg.blc.bl_gb + hdr_b_max_value * self.cfg.blc.beta / 1024)
-            hdr_max_value = max([hdr_r_max_value, hdr_b_max_value, hdr_gr_max_value, hdr_gb_max_value])
+            blc = self.cfg.blc
+            hdr_max_r = raw_max_value - blc.bl_r
+            hdr_max_b = raw_max_value - blc.bl_b
+            hdr_max_gr = int(raw_max_value - blc.bl_gr + hdr_max_r * blc.alpha / 1024)
+            hdr_max_gb = int(raw_max_value - blc.bl_gb + hdr_max_b * blc.beta / 1024)
+            hdr_max_value = max(hdr_max_r, hdr_max_b, hdr_max_gr, hdr_max_gb)
         else:
             hdr_max_value = raw_max_value
 
@@ -73,10 +75,11 @@ class Pipeline:
             module_cls = getattr(package, module_name.upper())
             module = module_cls(self.cfg)
 
-            if hasattr(module, 'dependent_modules'):
-                for m in module.dependent_modules:
-                    if m not in enabled_modules:
-                        raise RuntimeError('{} is available only if {} is activated'.format(module_name, m))
+            for m in MODULE_DEPENDENCIES.get(module_cls.__name__, []):
+                if m not in enabled_modules:
+                    raise RuntimeError(
+                        '{} is unavailable when {} is deactivated'.format(module_name, m)
+                    )
 
             modules[module_name] = module
 
@@ -145,7 +148,7 @@ class Pipeline:
         """
         A higher level API that writes ISP result into disk
         :param raw_path: path to the raw file to be processed
-        :param save_dir: directory to save the output (the output will share the filename with input)
+        :param save_dir: directory to save the output (shares the same filename as the input)
         :param load_raw_fn: function to load the Bayer array from the raw_path
         :param suffix: suffix to added to the output filename
         """
@@ -164,8 +167,8 @@ class Pipeline:
         """
         Batch running with multiprocessing
         :param raw_paths: list of paths to the raw files to be executed
-        :param save_dirs: list of directories to save the outputs. If given a string, it will be copied
-            to a N-element list, where N is the number of paths in raw_paths
+        :param save_dirs: list of directories to save the outputs. If given a string, it will be
+            copied to a N-element list, where N is the number of paths in raw_paths
         :param load_raw_fn: function to load the Bayer array from the raw_path
         :param suffixes: a list of suffixes to added to the output filenames
         :param num_processes: number of processes in multiprocessing
