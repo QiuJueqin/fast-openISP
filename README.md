@@ -54,9 +54,9 @@ added into the fast-openISP pipeline.
 ### EEH (edge enhancement)
 
 The official openISP uses
-an [asymmetric kernel](https://github.com/cruxopen/openISP/blob/49de48282e66bdb283779394a23c9c0d6ba238ff/isp_pipeline.py#L150)
+an [asymmetric kernel](https://github.com/cruxopen/openISP/blob/49de48282e66bdb283779394a23c9c0d6ba238ff/isp_pipeline.py#L150-L164)
 to extract edge map. In fast-openISP, however, we use the subtraction between the original and the gaussian filtered
-Y-channels as the edge estimation, which reduces the artifact when the enhancement gain is large.
+Y-channel as the edge estimation, which reduces the artifact when the enhancement gain is large.
 
 ### BCC (brightness & contrast control)
 
