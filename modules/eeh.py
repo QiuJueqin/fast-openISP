@@ -7,7 +7,7 @@
 import numpy as np
 
 from .basic_module import BasicModule, register_dependent_modules
-from .helpers import gaussian_filter, gen_gaussian_kernel
+from .helpers import generic_filter, gen_gaussian_kernel
 
 
 @register_dependent_modules('csc')
@@ -16,7 +16,7 @@ class EEH(BasicModule):
         super().__init__(cfg)
 
         kernel = gen_gaussian_kernel(kernel_size=5, sigma=1.2)
-        self.kernel = (1024 * kernel / kernel.max()).astype(np.int32)  # x1024
+        self.gaussian = (1024 * kernel / kernel.max()).astype(np.int32)  # x1024
 
         t1, t2 = self.params.flat_threshold, self.params.edge_threshold
         threshold_delta = np.clip(t2 - t1, 1E-6, None)
@@ -27,7 +27,7 @@ class EEH(BasicModule):
     def execute(self, data):
         y_image = data['y_image'].astype(np.int32)
 
-        delta = y_image - gaussian_filter(y_image, self.kernel)
+        delta = y_image - generic_filter(y_image, self.gaussian)
         sign_map = np.sign(delta)
         abs_delta = np.abs(delta)
 
@@ -39,7 +39,6 @@ class EEH(BasicModule):
         )
 
         enhanced_delta = sign_map * np.clip(enhanced_delta, 0, self.params.delta_threshold)
-
         eeh_y_image = np.clip(y_image + enhanced_delta, 0, self.cfg.saturation_values.sdr)
 
         data['y_image'] = eeh_y_image.astype(np.uint8)

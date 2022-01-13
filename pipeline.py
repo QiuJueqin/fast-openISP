@@ -21,7 +21,6 @@ from modules.basic_module import MODULE_DEPENDENCIES
 
 class Pipeline:
     """ Core fast-openISP pipeline """
-
     def __init__(self, cfg):
         """
         :param cfg: yacs.Config object, configurations about camera specs and module parameters
@@ -42,7 +41,6 @@ class Pipeline:
             module, i.e., Gamma in openISP (not included)
         SDR stage: dataflow after the Gamma module (included)
         """
-
         raw_max_value = 2 ** self.cfg.hardware.raw_bit_depth - 1
         sdr_max_value = 255
 
@@ -63,7 +61,6 @@ class Pipeline:
 
     def get_modules(self):
         """ Get activated ISP modules according to the configuration """
-
         if op.dirname(__file__) not in sys.path:
             sys.path.insert(0, op.dirname(__file__))
 
@@ -97,6 +94,7 @@ class Pipeline:
             intermediates: a dict containing intermediate results if save_intermediates=True,
                 otherwise a empty dict
         """
+
         def print_(*args, **kwargs):
             return print(*args, **kwargs) if verbose else None
 
@@ -126,7 +124,6 @@ class Pipeline:
         :param data: argument returned by self.execute()
         :return: displayable result: np.ndarray(H, W, 3) in np.uint8 dtype
         """
-
         if 'y_image' in data and 'cbcr_image' in data:
             ycbcr_image = np.dstack([data['y_image'][..., None], data['cbcr_image']])
             output = ycbcr_to_rgb(ycbcr_image)
@@ -152,7 +149,6 @@ class Pipeline:
         :param load_raw_fn: function to load the Bayer array from the raw_path
         :param suffix: suffix to added to the output filename
         """
-
         import cv2
 
         bayer = load_raw_fn(raw_path)
@@ -165,7 +161,7 @@ class Pipeline:
 
     def batch_run(self, raw_paths, save_dirs, load_raw_fn, suffixes='', num_processes=1):
         """
-        Batch running with multiprocessing
+        Batch version of self.run via multiprocessing
         :param raw_paths: list of paths to the raw files to be executed
         :param save_dirs: list of directories to save the outputs. If given a string, it will be
             copied to a N-element list, where N is the number of paths in raw_paths
@@ -173,7 +169,6 @@ class Pipeline:
         :param suffixes: a list of suffixes to added to the output filenames
         :param num_processes: number of processes in multiprocessing
         """
-
         num_files = len(raw_paths)
         num_batches = math.ceil(num_files / num_processes)
 
@@ -210,7 +205,6 @@ class Pipeline:
 
 def ycbcr_to_rgb(ycbcr_array):
     """ Convert YCbCr 3-channel array into sRGB array """
-
     assert ycbcr_array.dtype == np.uint8
 
     matrix = np.array([[298, 0, 409],

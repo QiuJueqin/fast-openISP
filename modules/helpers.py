@@ -12,7 +12,6 @@ def get_bayer_indices(pattern):
     Get (x_start_idx, y_start_idx) for R, Gr, Gb, and B channels
     in Bayer array, respectively
     """
-
     return {'gbrg': ((0, 1), (1, 1), (0, 0), (1, 0)),
             'rggb': ((0, 0), (1, 0), (0, 1), (1, 1)),
             'bggr': ((1, 1), (0, 1), (1, 0), (0, 0)),
@@ -26,7 +25,6 @@ def split_bayer(bayer_array, bayer_pattern):
     :param bayer_pattern: 'gbrg' | 'rggb' | 'bggr' | 'grbg'
     :return: 4-element list of R, Gr, Gb, and B channel sub-arrays, each is an np.ndarray(H/2, W/2)
     """
-
     rggb_indices = get_bayer_indices(bayer_pattern)
 
     sub_arrays = []
@@ -47,7 +45,6 @@ def reconstruct_bayer(sub_arrays, bayer_pattern):
     :param bayer_pattern: 'gbrg' | 'rggb' | 'bggr' | 'grbg'
     :return: np.ndarray(H, W)
     """
-
     rggb_indices = get_bayer_indices(bayer_pattern)
 
     height, width = sub_arrays[0].shape
@@ -71,7 +68,6 @@ def pad(array, pads, mode='reflect'):
     :param mode: padding mode, see np.pad
     :return: padded array: np.ndarray(H', W', ...)
     """
-
     if isinstance(pads, (list, tuple, np.ndarray)):
         if len(pads) == 2:
             pads = ((pads[0], pads[0]), (pads[1], pads[1])) + ((0, 0),) * (array.ndim - 2)
@@ -93,7 +89,6 @@ def crop(array, crops):
         if 4-element sequence: (top crop, bottom crop, left crop, right crop)
     :return: cropped array: np.ndarray(H', W', ...)
     """
-
     if isinstance(crops, (list, tuple, np.ndarray)):
         if len(crops) == 2:
             top_crop = bottom_crop = crops[0]
@@ -117,7 +112,6 @@ def shift_array(padded_array, window_size):
     :return: a generator of length (2r+1)*(2r+1), each is an np.ndarray(H, W), and the original
         array before padding locates in the middle of the generator
     """
-
     wy, wx = window_size if isinstance(window_size, (list, tuple)) else (window_size, window_size)
     assert wy % 2 == 1 and wx % 2 == 1, 'only odd window size is valid'
 
@@ -150,9 +144,33 @@ def gen_gaussian_kernel(kernel_size, sigma):
     return kernel / kernel.sum()
 
 
+def generic_filter(array, kernel):
+    """
+    Filter input image array with given kernel
+    :param array: array to be filter: np.ndarray(H, W, ...), must be np.int dtype
+    :param kernel: np.ndarray(h, w)
+    :return: filtered array: np.ndarray(H, W, ...)
+    """
+    kh, kw = kernel.shape[:2]
+    kernel = kernel.flatten()
+
+    padded_array = pad(array, pads=(kh // 2, kw // 2))
+    shifted_arrays = shift_array(padded_array, window_size=(kh, kw))
+
+    filtered_array = np.zeros_like(array)
+    weights = np.zeros_like(array)
+
+    for i, shifted_array in enumerate(shifted_arrays):
+        filtered_array += kernel[i] * shifted_array
+        weights += kernel[i]
+
+    filtered_array = (filtered_array / weights).astype(array.dtype)
+    return filtered_array
+
+
 def mean_filter(array, filter_size=3):
     """
-    A faster reimplementation of the mean-filter
+    A faster reimplementation of the mean filter
     :param array: array to be filter: np.ndarray(H, W, ...)
     :param filter_size: int, diameter of the mean-filter
     :return: filtered array: np.ndarray(H, W, ...)
@@ -165,35 +183,9 @@ def mean_filter(array, filter_size=3):
     return (sum(shifted_arrays) / filter_size ** 2).astype(array.dtype)
 
 
-def gaussian_filter(array, kernel):
-    """
-    A faster reimplementation of the bilateral-filter
-    :param array: array to be filter: np.ndarray(H, W, ...), must be np.int dtype
-    :param kernel: np.ndarray(h, w)
-    :return: filtered array: np.ndarray(H, W, ...)
-    """
-
-    kh, kw = kernel.shape[:2]
-    kernel = kernel.flatten()
-
-    padded_array = pad(array, pads=(kh // 2, kw // 2))
-    shifted_arrays = shift_array(padded_array, window_size=(kh, kw))
-
-    gf_array = np.zeros_like(array)
-    weights = np.zeros_like(array)
-
-    for i, shifted_array in enumerate(shifted_arrays):
-        gf_array += kernel[i] * shifted_array
-        weights += kernel[i]
-
-    gf_array = (gf_array / weights).astype(array.dtype)
-
-    return gf_array
-
-
 def bilateral_filter(array, spatial_weights, intensity_weights_lut, right_shift=0):
     """
-    A faster reimplementation of the bilateral-filter
+    A faster reimplementation of the bilateral filter
     :param array: array to be filter: np.ndarray(H, W, ...), must be np.int dtype
     :param spatial_weights: np.ndarray(h, w): predefined spatial gaussian kernel, where h and w are
         kernel height and width respectively
@@ -202,7 +194,6 @@ def bilateral_filter(array, spatial_weights, intensity_weights_lut, right_shift=
         right to avoid integer overflow when multiply this result to the input array
     :return: filtered array: np.ndarray(H, W, ...)
     """
-
     filter_height, filter_width = spatial_weights.shape[:2]
     spatial_weights = spatial_weights.flatten()
 
